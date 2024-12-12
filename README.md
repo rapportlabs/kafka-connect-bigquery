@@ -97,6 +97,7 @@ terminal):
 $ ./download_and_unzip_confluent.sh
 ```
 
+confluent 패스 설정... 인데 안해도 됨.
 (이거 어차피 터미널 열때마다 해줘야해서 안해도 되게 각 쉘스크립트에 그냥 박아넣어놨습니다.)
 ```bash
 $ export CONFLUENT_DIR=/path/to/confluent 
