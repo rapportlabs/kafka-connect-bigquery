@@ -92,8 +92,14 @@ After that, if your Confluent Platform installation isn't in a sibling directory
 specify its location (and do so before starting each of the subsequent processes in their own 
 terminal):
 
+설치 스크립트 실행 
+```bash 
+$ ./download_and_unzip_confluent.sh
+```
+
+(이거 어차피 터미널 열때마다 해줘야해서 안해도 되게 각 쉘스크립트에 그냥 박아넣어놨습니다.)
 ```bash
-$ export CONFLUENT_DIR=/path/to/confluent
+$ export CONFLUENT_DIR=/path/to/confluent 
 ```
 
 Then, initialize the background processes necessary for Kafka Connect (one terminal per script):
