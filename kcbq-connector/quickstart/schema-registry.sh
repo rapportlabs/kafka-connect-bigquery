@@ -20,9 +20,6 @@
 
 BASE_DIR=`dirname "$0"`
 
-if [ -z $CONFLUENT_DIR ]; then
-  CONFLUENT_DIR="$BASE_DIR/../../confluent-3.0.0"
-fi
-
+export CONFLUENT_DIR="./confluent-7.8.0"
 echo "Starting schema-registry..."
 exec "$CONFLUENT_DIR/bin/schema-registry-start"  "$CONFLUENT_DIR/etc/schema-registry/schema-registry.properties"

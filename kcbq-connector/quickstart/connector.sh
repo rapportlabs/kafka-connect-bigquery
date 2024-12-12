@@ -20,9 +20,7 @@
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-if [ -z $CONFLUENT_DIR ]; then
-  CONFLUENT_DIR="$BASE_DIR/../../confluent-3.0.0"
-fi
+export CONFLUENT_DIR="./confluent-7.8.0"
 
 export CLASSPATH="$CLASSPATH:$BASE_DIR/../../bin/jar/*"
 
