@@ -92,7 +92,7 @@ After that, if your Confluent Platform installation isn't in a sibling directory
 specify its location (and do so before starting each of the subsequent processes in their own 
 terminal):
 
-설치 스크립트 실행 
+confluent platform 다운로드 및 unzip
 ```bash 
 $ ./download_and_unzip_confluent.sh
 ```
