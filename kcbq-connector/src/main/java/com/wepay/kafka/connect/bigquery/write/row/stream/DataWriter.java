@@ -9,6 +9,8 @@ import com.google.cloud.bigquery.storage.v1.*;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Descriptors;
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -121,6 +123,8 @@ public class DataWriter {
 
     static class AppendCompleteCallback implements ApiFutureCallback<AppendRowsResponse> {
 
+        private static final Logger logger = LoggerFactory.getLogger(AppendCompleteCallback.class);
+
         private final DataWriter parent;
         private final AppendContext appendContext;
 
@@ -130,7 +134,7 @@ public class DataWriter {
         }
 
         public void onSuccess(AppendRowsResponse response) {
-            System.out.format("Append success\n");
+            logger.trace("Append success");
             this.parent.recreateCount.set(0);
             done();
         }
