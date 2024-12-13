@@ -52,6 +52,7 @@ import com.wepay.kafka.connect.bigquery.write.row.BigQueryErrorResponses;
 import com.wepay.kafka.connect.bigquery.write.row.BigQueryWriter;
 import com.wepay.kafka.connect.bigquery.write.row.GCSToBQWriter;
 import com.wepay.kafka.connect.bigquery.write.row.SimpleBigQueryWriter;
+import com.wepay.kafka.connect.bigquery.write.row.StorageWriteBigQueryWriter;
 import com.wepay.kafka.connect.bigquery.write.row.UpsertDeleteBigQueryWriter;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -101,6 +102,7 @@ public class BigQuerySinkTask extends SinkTask {
   private boolean usePartitionDecorator;
   private boolean sanitize;
   private boolean upsertDelete;
+  private boolean useStorageWrite;
   private MergeBatches mergeBatches;
   private MergeQueries mergeQueries;
   private volatile boolean stopped;
@@ -455,6 +457,17 @@ public class BigQuerySinkTask extends SinkTask {
     int retry = config.getInt(BigQuerySinkConfig.BIGQUERY_RETRY_CONFIG);
     long retryWait = config.getLong(BigQuerySinkConfig.BIGQUERY_RETRY_WAIT_CONFIG);
     BigQuery bigQuery = getBigQuery();
+
+    if (useStorageWrite) {
+      return new StorageWriteBigQueryWriter(bigQuery,
+              getSchemaManager(),
+              retry,
+              retryWait,
+              autoCreateTables,
+              mergeBatches.intermediateToDestinationTables(),
+              errantRecordHandler);
+    }
+
     if (upsertDelete) {
       return new UpsertDeleteBigQueryWriter(bigQuery,
                                             getSchemaManager(),
@@ -520,6 +533,8 @@ public class BigQuerySinkTask extends SinkTask {
 
     upsertDelete = config.getBoolean(BigQuerySinkConfig.UPSERT_ENABLED_CONFIG)
         || config.getBoolean(BigQuerySinkConfig.DELETE_ENABLED_CONFIG);
+
+    useStorageWrite = config.getBoolean(BigQuerySinkConfig.USE_STORAGE_WRITE_CONFIG);
 
     bigQuery = new AtomicReference<>();
     schemaManager = new AtomicReference<>();
