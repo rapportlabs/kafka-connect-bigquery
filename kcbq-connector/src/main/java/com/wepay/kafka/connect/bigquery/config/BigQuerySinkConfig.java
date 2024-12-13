@@ -333,9 +333,8 @@ public class BigQuerySinkConfig extends AbstractConfig {
   public static final boolean USE_STORAGE_WRITE_DEFAULT =                  false;
   private static final ConfigDef.Importance USE_STORAGE_WRITE_IMPORTANCE = ConfigDef.Importance.LOW;
   private static final String USE_STORAGE_WRITE_DOC =
-          "Enable delete functionality on the connector through the use of record keys, intermediate "
-                  + "tables, and periodic merge flushes. A delete will be performed when a record with a null "
-                  + "value (i.e., a tombstone record) is read.";
+      "Utilize the BigQuery Storage Write API to write data directly to BigQuery tables. "
+      + "This approach improves throughput and supports high-frequency writes with low latency.";
 
   public static final String INTERMEDIATE_TABLE_SUFFIX_CONFIG =                     "intermediateTableSuffix";
   private static final ConfigDef.Type INTERMEDIATE_TABLE_SUFFIX_TYPE =              ConfigDef.Type.STRING;
