@@ -21,6 +21,12 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
+/**
+ * 아래 문서를 참고하였습니다
+ * https://cloud.google.com/bigquery/docs/write-api-streaming
+ * https://github.com/googleapis/java-bigquerystorage/blob/HEAD/samples/snippets/src/main/java/com/example/bigquerystorage/WriteToDefaultStream.java
+ * https://cloud.google.com/bigquery/docs/change-data-capture
+ */
 public class StorageWriteBigQueryWriter extends AdaptiveBigQueryWriter {
 
     /**
