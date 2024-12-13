@@ -13,12 +13,15 @@ import com.wepay.kafka.connect.bigquery.write.row.stream.DataWriter;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +31,10 @@ import java.util.stream.Collectors;
  * https://cloud.google.com/bigquery/docs/change-data-capture
  */
 public class StorageWriteBigQueryWriter extends AdaptiveBigQueryWriter {
+
+    private static final Logger logger = LoggerFactory.getLogger(StorageWriteBigQueryWriter.class);
+
+    private final ConcurrentHashMap<PartitionedTableId, DataWriter> writers = new ConcurrentHashMap<>();
 
     /**
      * @param bigQuery            Used to send write requests to BigQuery.
@@ -43,27 +50,34 @@ public class StorageWriteBigQueryWriter extends AdaptiveBigQueryWriter {
 
     @Override
     public Map<Long, List<BigQueryError>> performWriteRequest(PartitionedTableId tableId, SortedMap<SinkRecord, InsertAllRequest.RowToInsert> rows) {
-        DataWriter writer = new DataWriter();
-        TableName tableName = TableName.of(tableId.getProject(), tableId.getDataset(), tableId.getBaseTableName());
+        DataWriter writer = writers.computeIfAbsent(tableId, this::createDataWriter);
         try {
-            writer.initialize(tableName);
-            List<JSONObject> objects = rows.values().stream().map(rowToInsert ->
-                    new JSONObject(rowToInsert.getContent())
-            ).collect(Collectors.toList());
-            writer.append(new AppendContext(new JSONArray(objects)));
-
-        } catch (Descriptors.DescriptorValidationException e) {
-            // TODO: 오류를 적절하게 처리합니다
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            // TODO: 오류를 적절하게 처리합니다
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            // TODO: 오류를 적절하게 처리합니다
+            writer.append(envelope(rows));
+        } catch (Descriptors.DescriptorValidationException | IOException | InterruptedException e) {
+            logger.warn("Failed to append rows to DataWriter", e);
             throw new RuntimeException(e);
         }
 
         // TODO: 적절한 오류를 담습니다
         return new HashMap<>();
+    }
+
+    private DataWriter createDataWriter(PartitionedTableId tableId) {
+        DataWriter writer = new DataWriter();
+        TableName tableName = TableName.of(tableId.getProject(), tableId.getDataset(), tableId.getBaseTableName());
+        try {
+            writer.initialize(tableName);
+        } catch (Descriptors.DescriptorValidationException | IOException | InterruptedException e) {
+            logger.warn("Failed to initialize DataWriter", e);
+            throw new RuntimeException(e);
+        }
+        return writer;
+    }
+
+    private AppendContext envelope(SortedMap<SinkRecord, InsertAllRequest.RowToInsert> rows) {
+        List<JSONObject> objects = rows.values().stream().map(rowToInsert ->
+                new JSONObject(rowToInsert.getContent())
+        ).collect(Collectors.toList());
+        return new AppendContext(new JSONArray(objects));
     }
 }
