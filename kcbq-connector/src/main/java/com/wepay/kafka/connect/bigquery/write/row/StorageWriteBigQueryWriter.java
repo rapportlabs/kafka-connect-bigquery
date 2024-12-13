@@ -3,8 +3,7 @@ package com.wepay.kafka.connect.bigquery.write.row;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryError;
 import com.google.cloud.bigquery.InsertAllRequest;
-import com.google.cloud.bigquery.TableId;
-import com.google.cloud.bigquery.storage.v1.*;
+import com.google.cloud.bigquery.storage.v1.TableName;
 import com.google.protobuf.Descriptors;
 import com.wepay.kafka.connect.bigquery.ErrantRecordHandler;
 import com.wepay.kafka.connect.bigquery.SchemaManager;
@@ -22,22 +21,18 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
-public class StorageWriteBigQueryWriter extends UpsertDeleteBigQueryWriter {
+public class StorageWriteBigQueryWriter extends AdaptiveBigQueryWriter {
 
     /**
-     * @param bigQuery                        Used to send write requests to BigQuery.
-     * @param schemaManager                   Used to update BigQuery tables.
-     * @param retry                           How many retries to make in the event of a 500/503 error.
-     * @param retryWait                       How long to wait in between retries.
-     * @param autoCreateTables                Whether destination tables should be automatically created
-     * @param intermediateToDestinationTables A mapping used to determine the destination table for
-     *                                        given intermediate tables; used for create/update
-     *                                        operations in order to propagate them to the destination
-     *                                        table
-     * @param errantRecordHandler             Used to handle errant records
+     * @param bigQuery            Used to send write requests to BigQuery.
+     * @param schemaManager       Used to update BigQuery tables.
+     * @param retry               How many retries to make in the event of a 500/503 error.
+     * @param retryWait           How long to wait in between retries.
+     * @param autoCreateTables    Whether tables should be automatically created
+     * @param errantRecordHandler Used to handle errant records
      */
-    public StorageWriteBigQueryWriter(BigQuery bigQuery, SchemaManager schemaManager, int retry, long retryWait, boolean autoCreateTables, Map<TableId, TableId> intermediateToDestinationTables, ErrantRecordHandler errantRecordHandler) {
-        super(bigQuery, schemaManager, retry, retryWait, autoCreateTables, intermediateToDestinationTables, errantRecordHandler);
+    public StorageWriteBigQueryWriter(BigQuery bigQuery, SchemaManager schemaManager, int retry, long retryWait, boolean autoCreateTables, ErrantRecordHandler errantRecordHandler) {
+        super(bigQuery, schemaManager, retry, retryWait, autoCreateTables, errantRecordHandler);
     }
 
     @Override

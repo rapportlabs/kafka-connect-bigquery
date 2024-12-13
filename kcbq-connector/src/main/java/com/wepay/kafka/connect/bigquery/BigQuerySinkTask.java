@@ -464,7 +464,6 @@ public class BigQuerySinkTask extends SinkTask {
               retry,
               retryWait,
               autoCreateTables,
-              mergeBatches.intermediateToDestinationTables(),
               errantRecordHandler);
     }
 
