@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
  * 아래 문서를 참고하였습니다
  * https://cloud.google.com/bigquery/docs/write-api-streaming
  * https://github.com/googleapis/java-bigquerystorage/blob/HEAD/samples/snippets/src/main/java/com/example/bigquerystorage/WriteToDefaultStream.java
- * https://cloud.google.com/bigquery/docs/change-data-capture
  */
 public class StorageWriteBigQueryWriter extends AdaptiveBigQueryWriter {
 
@@ -74,7 +73,7 @@ public class StorageWriteBigQueryWriter extends AdaptiveBigQueryWriter {
         return writer;
     }
 
-    private AppendContext envelope(SortedMap<SinkRecord, InsertAllRequest.RowToInsert> rows) {
+    protected AppendContext envelope(SortedMap<SinkRecord, InsertAllRequest.RowToInsert> rows) {
         List<JSONObject> objects = rows.values().stream().map(rowToInsert ->
                 new JSONObject(rowToInsert.getContent())
         ).collect(Collectors.toList());
