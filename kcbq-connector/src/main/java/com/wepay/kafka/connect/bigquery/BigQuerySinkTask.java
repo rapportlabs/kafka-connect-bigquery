@@ -50,6 +50,8 @@ import com.wepay.kafka.connect.bigquery.write.batch.TableWriterBuilder;
 import com.wepay.kafka.connect.bigquery.write.row.AdaptiveBigQueryWriter;
 import com.wepay.kafka.connect.bigquery.write.row.BigQueryErrorResponses;
 import com.wepay.kafka.connect.bigquery.write.row.BigQueryWriter;
+import com.wepay.kafka.connect.bigquery.write.row.CDCOptions;
+import com.wepay.kafka.connect.bigquery.write.row.CDCStorageWriteBigQueryWriter;
 import com.wepay.kafka.connect.bigquery.write.row.GCSToBQWriter;
 import com.wepay.kafka.connect.bigquery.write.row.SimpleBigQueryWriter;
 import com.wepay.kafka.connect.bigquery.write.row.StorageWriteBigQueryWriter;
@@ -66,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -103,6 +106,7 @@ public class BigQuerySinkTask extends SinkTask {
   private boolean sanitize;
   private boolean upsertDelete;
   private boolean useStorageWrite;
+  private boolean useCDC;
   private MergeBatches mergeBatches;
   private MergeQueries mergeQueries;
   private volatile boolean stopped;
@@ -459,6 +463,22 @@ public class BigQuerySinkTask extends SinkTask {
     BigQuery bigQuery = getBigQuery();
 
     if (useStorageWrite) {
+      if (useCDC) {
+        return new CDCStorageWriteBigQueryWriter(bigQuery,
+                getSchemaManager(),
+                retry,
+                retryWait,
+                autoCreateTables,
+                errantRecordHandler,
+                new CDCOptions(
+                        "before_",
+                        "after_",
+                        "op",
+                        Arrays.asList("u", "c"),
+                        Collections.singletonList("d")
+                )
+        );
+      }
       return new StorageWriteBigQueryWriter(bigQuery,
               getSchemaManager(),
               retry,
@@ -534,6 +554,7 @@ public class BigQuerySinkTask extends SinkTask {
         || config.getBoolean(BigQuerySinkConfig.DELETE_ENABLED_CONFIG);
 
     useStorageWrite = config.getBoolean(BigQuerySinkConfig.USE_STORAGE_WRITE_CONFIG);
+    useCDC = config.getBoolean(BigQuerySinkConfig.USE_CDC_CONFIG);
 
     bigQuery = new AtomicReference<>();
     schemaManager = new AtomicReference<>();
