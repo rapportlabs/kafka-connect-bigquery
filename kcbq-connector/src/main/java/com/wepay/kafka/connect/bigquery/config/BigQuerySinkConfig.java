@@ -328,6 +328,22 @@ public class BigQuerySinkConfig extends AbstractConfig {
       + "tables, and periodic merge flushes. A delete will be performed when a record with a null " 
       + "value (i.e., a tombstone record) is read.";
 
+  public static final String USE_STORAGE_WRITE_CONFIG =                    "useStorageWrite";
+  private static final ConfigDef.Type USE_STORAGE_WRITE_TYPE =             ConfigDef.Type.BOOLEAN;
+  public static final boolean USE_STORAGE_WRITE_DEFAULT =                  false;
+  private static final ConfigDef.Importance USE_STORAGE_WRITE_IMPORTANCE = ConfigDef.Importance.LOW;
+  private static final String USE_STORAGE_WRITE_DOC =
+      "Utilize the BigQuery Storage Write API to write data directly to BigQuery tables. "
+      + "This approach improves throughput and supports high-frequency writes with low latency.";
+
+  public static final String USE_CDC_CONFIG =                    "useCDC";
+  private static final ConfigDef.Type USE_CDC_TYPE =             ConfigDef.Type.BOOLEAN;
+  public static final boolean USE_CDC_DEFAULT =                  false;
+  private static final ConfigDef.Importance USE_CDC_IMPORTANCE = ConfigDef.Importance.LOW;
+  private static final String USE_CDC_DOC =
+          "Utilize the BigQuery Storage Write API to write data directly to BigQuery tables. "
+                  + "This approach improves throughput and supports high-frequency writes with low latency.";
+
   public static final String INTERMEDIATE_TABLE_SUFFIX_CONFIG =                     "intermediateTableSuffix";
   private static final ConfigDef.Type INTERMEDIATE_TABLE_SUFFIX_TYPE =              ConfigDef.Type.STRING;
   public static final String INTERMEDIATE_TABLE_SUFFIX_DEFAULT =                    "tmp";
@@ -716,6 +732,18 @@ public class BigQuerySinkConfig extends AbstractConfig {
             DELETE_ENABLED_DEFAULT,
             DELETE_ENABLED_IMPORTANCE,
             DELETE_ENABLED_DOC
+        ).define(
+            USE_STORAGE_WRITE_CONFIG,
+            USE_STORAGE_WRITE_TYPE,
+            USE_STORAGE_WRITE_DEFAULT,
+            USE_STORAGE_WRITE_IMPORTANCE,
+            USE_STORAGE_WRITE_DOC
+        ).define(
+            USE_CDC_CONFIG,
+            USE_CDC_TYPE,
+            USE_CDC_DEFAULT,
+            USE_CDC_IMPORTANCE,
+            USE_CDC_DOC
         ).define(
             INTERMEDIATE_TABLE_SUFFIX_CONFIG,
             INTERMEDIATE_TABLE_SUFFIX_TYPE,
